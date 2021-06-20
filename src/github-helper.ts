@@ -24,10 +24,7 @@ export async function createPullRequest(
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
 
     // Get PR title
-    const title =
-      github.context.payload &&
-      github.context.payload.pull_request &&
-      github.context.payload.pull_request.title
+    const title = `(cherry-pick) ${github.context.payload?.pull_request?.title}`
     core.info(`Using body '${title}'`)
 
     // Get PR body

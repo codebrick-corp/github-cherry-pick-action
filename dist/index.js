@@ -41,14 +41,13 @@ const github = __importStar(__webpack_require__(5438));
 const core = __importStar(__webpack_require__(2186));
 const ERROR_PR_REVIEW_FROM_AUTHOR = 'Review cannot be requested from pull request author';
 function createPullRequest(inputs, prBranch) {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const octokit = github.getOctokit(inputs.token);
         if (process.env.GITHUB_REPOSITORY !== undefined) {
             const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
             // Get PR title
-            const title = github.context.payload &&
-                github.context.payload.pull_request &&
-                github.context.payload.pull_request.title;
+            const title = `(cherry-pick) ${(_b = (_a = github.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.title}`;
             core.info(`Using body '${title}'`);
             // Get PR body
             const body = github.context.payload &&
@@ -231,10 +230,7 @@ function run() {
             core.startGroup('Cherry picking');
             const result = yield gitExecution([
                 'cherry-pick',
-                '-m',
-                '1',
-                '--strategy=recursive',
-                '--strategy-option=theirs',
+                '-x',
                 `${githubSha}`
             ]);
             if (result.exitCode !== 0 && !result.stderr.includes(CHERRYPICK_EMPTY)) {
