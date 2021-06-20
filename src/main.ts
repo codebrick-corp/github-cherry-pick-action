@@ -79,6 +79,7 @@ export async function run(): Promise<void> {
 
     // Create pull request
     core.startGroup('Opening pull request')
+    inputs.labels = []
     await createPullRequest(inputs, prBranch)
     core.endGroup()
   } catch (error) {
