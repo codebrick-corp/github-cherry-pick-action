@@ -22,7 +22,7 @@ export async function run(): Promise<void> {
     }
 
     const githubSha = process.env.GITHUB_SHA
-    core.info(`Cherry pick into branch ${inputs.branch}!`)
+    core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha}!`)
 
     const octokit = github.getOctokit(inputs.token)
     const context = github.context;
