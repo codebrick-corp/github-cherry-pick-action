@@ -26,6 +26,8 @@ export async function run(): Promise<void> {
 
     const octokit = github.getOctokit(inputs.token)
     const context = github.context;
+    
+    core.info(`getPRs ${context.repo.owner} ${context.repo.repo} ${githubSha!}!`)
     const prs = await octokit.repos.listPullRequestsAssociatedWithCommit({
         owner: context.repo.owner,
         repo: context.repo.repo,
