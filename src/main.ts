@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as io from '@actions/io'
 import * as exec from '@actions/exec'
+import * as github from '@actions/github'
 import * as utils from './utils'
 import {Inputs, createPullRequest} from './github-helper'
 
@@ -20,14 +21,26 @@ export async function run(): Promise<void> {
       teamReviewers: utils.getInputAsArray('teamReviewers')
     }
 
+    const githubSha = process.env.GITHUB_SHA
     core.info(`Cherry pick into branch ${inputs.branch}!`)
 
-    const branches = inputs.labels.filter(l => l.startsWith('tests/'))
+    const octokit = github.getOctokit(inputs.token)
+    const context = github.context;
+    const prs = await octokit.repos.listPullRequestsAssociatedWithCommit({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        commit_sha: githubSha!,
+    });
+
+    const pr = prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0];
+    if (!pr) return
+
+    core.info(`labels ${pr.labels}`)
+    const branches = pr.labels.filter(l => l.name!.startsWith('tests/'))
     if (branches.length === 0) return
 
-    inputs.branch = branches[0]
+    inputs.branch = branches[0].name!
 
-    const githubSha = process.env.GITHUB_SHA
     const prBranch = `cherry-pick-${inputs.branch}-${githubSha}`
 
     // Configure the committer and author
@@ -79,7 +92,6 @@ export async function run(): Promise<void> {
 
     // Create pull request
     core.startGroup('Opening pull request')
-    inputs.labels = []
     await createPullRequest(inputs, prBranch)
     core.endGroup()
   } catch (error) {
