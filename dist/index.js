@@ -190,8 +190,9 @@ function run() {
             const prs = yield octokit.repos.listPullRequestsAssociatedWithCommit({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                commit_sha: githubSha,
+                commit_sha: githubSha
             });
+            core.info(`pr length ${prs.data.length}`);
             const pr = prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0];
             if (!pr)
                 return;
