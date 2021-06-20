@@ -21,22 +21,19 @@ export async function run(): Promise<void> {
       teamReviewers: utils.getInputAsArray('teamReviewers')
     }
 
-    const githubSha = process.env.GITHUB_SHA
-    core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha}!`)
-
     const octokit = github.getOctokit(inputs.token)
     const context = github.context
+    const githubSha: string | undefined =
+      context.payload.pull_request?.head?.sha
+    core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha!}!`)
+    if (!githubSha) return
 
-    core.info(
-      `getPRs ${context.repo.owner} ${context.repo.repo} ${githubSha!}!`
-    )
+    core.info(`getPRs ${context.repo.owner} ${context.repo.repo} ${githubSha}!`)
     const prs = await octokit.repos.listPullRequestsAssociatedWithCommit({
       owner: context.repo.owner,
       repo: context.repo.repo,
-      commit_sha: githubSha!
+      commit_sha: githubSha
     })
-
-    core.info(`asdfasdf ${context.payload.pull_request?.head?.sha}`)
 
     core.info(`pr length ${prs.data.length}`)
     const pr =

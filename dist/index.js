@@ -183,17 +183,18 @@ function run() {
                 reviewers: utils.getInputAsArray('reviewers'),
                 teamReviewers: utils.getInputAsArray('teamReviewers')
             };
-            const githubSha = process.env.GITHUB_SHA;
-            core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha}!`);
             const octokit = github.getOctokit(inputs.token);
             const context = github.context;
+            const githubSha = (_b = (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head) === null || _b === void 0 ? void 0 : _b.sha;
+            core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha}!`);
+            if (!githubSha)
+                return;
             core.info(`getPRs ${context.repo.owner} ${context.repo.repo} ${githubSha}!`);
             const prs = yield octokit.repos.listPullRequestsAssociatedWithCommit({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 commit_sha: githubSha
             });
-            core.info(`asdfasdf ${(_b = (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head) === null || _b === void 0 ? void 0 : _b.sha}`);
             core.info(`pr length ${prs.data.length}`);
             const pr = prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0];
             if (!pr)
