@@ -75,6 +75,8 @@ export async function run(): Promise<void> {
     await gitExecution(['checkout', '-b', prBranch, `origin/${inputs.branch}`])
     core.endGroup()
 
+    await gitExecution(['log', '--oneline'])
+
     // Cherry pick
     core.startGroup('Cherry picking')
     const result = await gitExecution(['cherry-pick', '-x', `${githubSha}`])

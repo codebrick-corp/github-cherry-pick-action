@@ -226,6 +226,7 @@ function run() {
             core.startGroup(`Create new branch from ${inputs.branch}`);
             yield gitExecution(['checkout', '-b', prBranch, `origin/${inputs.branch}`]);
             core.endGroup();
+            yield gitExecution(['log', '--oneline']);
             // Cherry pick
             core.startGroup('Cherry picking');
             const result = yield gitExecution(['cherry-pick', '-x', `${githubSha}`]);
