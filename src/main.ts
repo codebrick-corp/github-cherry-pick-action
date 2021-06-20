@@ -36,6 +36,8 @@ export async function run(): Promise<void> {
       commit_sha: githubSha!
     })
 
+    core.info(`asdfasdf ${context.payload.pull_request?.head?.sha}`)
+
     core.info(`pr length ${prs.data.length}`)
     const pr =
       prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0]
