@@ -23,8 +23,8 @@ export async function run(): Promise<void> {
 
     const octokit = github.getOctokit(inputs.token)
     const context = github.context
-    const githubSha: string | undefined =
-      context.payload.pull_request?.head?.sha
+    const githubSha: string | undefined = process.env.GITHUB_SHA
+    //context.payload.pull_request?.head?.sha
     core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha!}!`)
     if (!githubSha) return
 
@@ -40,7 +40,7 @@ export async function run(): Promise<void> {
       prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0]
     if (!pr) return
 
-    core.info(`labels ${pr.labels}`)
+    core.info(`labels ${pr.labels.map(l => l.name)}`)
     const branches = pr.labels.filter(l => l.name!.startsWith('tests/'))
     if (branches.length === 0) return
 

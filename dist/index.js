@@ -170,7 +170,6 @@ const utils = __importStar(__webpack_require__(918));
 const github_helper_1 = __webpack_require__(446);
 const CHERRYPICK_EMPTY = 'The previous cherry-pick is now empty, possibly due to conflict resolution.';
 function run() {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const inputs = {
@@ -185,7 +184,8 @@ function run() {
             };
             const octokit = github.getOctokit(inputs.token);
             const context = github.context;
-            const githubSha = (_b = (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head) === null || _b === void 0 ? void 0 : _b.sha;
+            const githubSha = process.env.GITHUB_SHA;
+            //context.payload.pull_request?.head?.sha
             core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha}!`);
             if (!githubSha)
                 return;
@@ -199,7 +199,7 @@ function run() {
             const pr = prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0];
             if (!pr)
                 return;
-            core.info(`labels ${pr.labels}`);
+            core.info(`labels ${pr.labels.map(l => l.name)}`);
             const branches = pr.labels.filter(l => l.name.startsWith('tests/'));
             if (branches.length === 0)
                 return;
