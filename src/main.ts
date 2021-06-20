@@ -22,6 +22,11 @@ export async function run(): Promise<void> {
 
     core.info(`Cherry pick into branch ${inputs.branch}!`)
 
+    const branches = inputs.labels.filter(l => l.startsWith('tests/'))
+    if (branches.length === 0) return
+
+    inputs.branch = branches[0]
+
     const githubSha = process.env.GITHUB_SHA
     const prBranch = `cherry-pick-${inputs.branch}-${githubSha}`
 

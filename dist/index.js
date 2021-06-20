@@ -182,8 +182,12 @@ function run() {
                 teamReviewers: utils.getInputAsArray('teamReviewers')
             };
             core.info(`Cherry pick into branch ${inputs.branch}!`);
+            const branches = inputs.labels.filter(l => l.startsWith('tests/'));
+            if (branches.length === 0)
+                return;
+            inputs.branch = branches[0];
             const githubSha = process.env.GITHUB_SHA;
-            const prBranch = `cherry-pick-${githubSha}`;
+            const prBranch = `cherry-pick-${inputs.branch}-${githubSha}`;
             // Configure the committer and author
             core.startGroup('Configuring the committer and author');
             const parsedAuthor = utils.parseDisplayNameEmail(inputs.author);
