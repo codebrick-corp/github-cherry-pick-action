@@ -72,10 +72,8 @@ export async function run(): Promise<void> {
 
     // Create branch new branch
     core.startGroup(`Create new branch from ${inputs.branch}`)
-    await gitExecution(['checkout', '-b', prBranch, `origin/${inputs.branch}`])
+    await gitExecution(['switch', '-c', prBranch, `origin/${inputs.branch}`])
     core.endGroup()
-
-    await gitExecution(['log', '--oneline'])
 
     // Cherry pick
     core.startGroup('Cherry picking')
