@@ -165,6 +165,7 @@ exports.run = void 0;
 const core = __importStar(__webpack_require__(2186));
 const io = __importStar(__webpack_require__(7436));
 const exec = __importStar(__webpack_require__(1514));
+const github = __importStar(__webpack_require__(5438));
 const utils = __importStar(__webpack_require__(918));
 const github_helper_1 = __webpack_require__(446);
 const CHERRYPICK_EMPTY = 'The previous cherry-pick is now empty, possibly due to conflict resolution.';
@@ -181,12 +182,24 @@ function run() {
                 reviewers: utils.getInputAsArray('reviewers'),
                 teamReviewers: utils.getInputAsArray('teamReviewers')
             };
-            core.info(`Cherry pick into branch ${inputs.branch}!`);
-            const branches = inputs.labels.filter(l => l.startsWith('tests/'));
+            const githubSha = process.env.GITHUB_SHA;
+            core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha}!`);
+            const octokit = github.getOctokit(inputs.token);
+            const context = github.context;
+            core.info(`getPRs ${context.repo.owner} ${context.repo.repo} ${githubSha}!`);
+            const prs = yield octokit.repos.listPullRequestsAssociatedWithCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: githubSha,
+            });
+            const pr = prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0];
+            if (!pr)
+                return;
+            core.info(`labels ${pr.labels}`);
+            const branches = pr.labels.filter(l => l.name.startsWith('tests/'));
             if (branches.length === 0)
                 return;
-            inputs.branch = branches[0];
-            const githubSha = process.env.GITHUB_SHA;
+            inputs.branch = branches[0].name;
             const prBranch = `cherry-pick-${inputs.branch}-${githubSha}`;
             // Configure the committer and author
             core.startGroup('Configuring the committer and author');

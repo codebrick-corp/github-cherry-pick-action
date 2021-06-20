@@ -25,16 +25,19 @@ export async function run(): Promise<void> {
     core.info(`Cherry pick into branch ${inputs.branch} with ${githubSha}!`)
 
     const octokit = github.getOctokit(inputs.token)
-    const context = github.context;
-    
-    core.info(`getPRs ${context.repo.owner} ${context.repo.repo} ${githubSha!}!`)
-    const prs = await octokit.repos.listPullRequestsAssociatedWithCommit({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        commit_sha: githubSha!,
-    });
+    const context = github.context
 
-    const pr = prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0];
+    core.info(
+      `getPRs ${context.repo.owner} ${context.repo.repo} ${githubSha!}!`
+    )
+    const prs = await octokit.repos.listPullRequestsAssociatedWithCommit({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      commit_sha: githubSha!
+    })
+
+    const pr =
+      prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0]
     if (!pr) return
 
     core.info(`labels ${pr.labels}`)
