@@ -37,7 +37,7 @@ export async function run(): Promise<void> {
 
     core.info(`pr length ${prs.data.length}`)
     const pr =
-      prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0]
+      prs.data.length > 0 && prs.data.filter(el => el.state === 'closed')[0]
     if (!pr) return
 
     core.info(`labels ${pr.labels.map(l => l.name)}`)

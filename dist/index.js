@@ -195,7 +195,7 @@ function run() {
                 commit_sha: githubSha
             });
             core.info(`pr length ${prs.data.length}`);
-            const pr = prs.data.length > 0 && prs.data.filter(el => el.state === 'open')[0];
+            const pr = prs.data.length > 0 && prs.data.filter(el => el.state === 'closed')[0];
             if (!pr)
                 return;
             core.info(`labels ${pr.labels.map(l => l.name)}`);
@@ -228,11 +228,7 @@ function run() {
             core.endGroup();
             // Cherry pick
             core.startGroup('Cherry picking');
-            const result = yield gitExecution([
-                'cherry-pick',
-                '-x',
-                `${githubSha}`
-            ]);
+            const result = yield gitExecution(['cherry-pick', '-x', `${githubSha}`]);
             if (result.exitCode !== 0 && !result.stderr.includes(CHERRYPICK_EMPTY)) {
                 throw new Error(`Unexpected error: ${result.stderr}`);
             }
