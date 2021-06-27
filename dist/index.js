@@ -274,7 +274,12 @@ function gitExecution(params) {
             }
         };
         const gitPath = yield io.which('git', true);
-        result.exitCode = yield exec.exec(gitPath, params, options);
+        try {
+            result.exitCode = yield exec.exec(gitPath, params, options);
+        }
+        catch (e) {
+            core.error(`gitExecution - ${e}`);
+        }
         result.stdout = stdout.join('');
         result.stderr = stderr.join('');
         if (result.exitCode === 0) {
