@@ -278,6 +278,7 @@ function gitExecution(params) {
             result.exitCode = yield exec.exec(gitPath, params, options);
         }
         catch (e) {
+            result.exitCode = 1;
             core.error(`gitExecution - ${e}`);
         }
         result.stdout = stdout.join('');
