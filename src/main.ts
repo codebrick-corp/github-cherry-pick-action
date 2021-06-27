@@ -80,6 +80,7 @@ export async function run(): Promise<void> {
     // Cherry pick
     core.startGroup('Cherry picking')
     const result = await gitExecution(['cherry-pick', '-x', `${githubSha}`])
+    core.info(`exitCode - ${result.exitCode}, ${result.stderr}`)
     if (result.exitCode !== 0 && !result.stderr.includes(CHERRYPICK_EMPTY)) {
       hasError = true
       // throw new Error(`Unexpected error: ${result.stderr}`)

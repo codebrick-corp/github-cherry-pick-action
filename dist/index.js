@@ -231,11 +231,16 @@ function run() {
             // Cherry pick
             core.startGroup('Cherry picking');
             const result = yield gitExecution(['cherry-pick', '-x', `${githubSha}`]);
+            core.info(`exitCode - ${result.exitCode}, ${result.stderr}`);
             if (result.exitCode !== 0 && !result.stderr.includes(CHERRYPICK_EMPTY)) {
                 hasError = true;
                 // throw new Error(`Unexpected error: ${result.stderr}`)
                 yield gitExecution(['add', '.']);
-                yield gitExecution(['commit', '-m', `cherry-pick(${githubSha.slice(0, 7)}) conflict should be resovled`]);
+                yield gitExecution([
+                    'commit',
+                    '-m',
+                    `cherry-pick(${githubSha.slice(0, 7)}) conflict should be resovled`
+                ]);
             }
             core.endGroup();
             // Push new branch
