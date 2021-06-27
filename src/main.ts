@@ -75,11 +75,16 @@ export async function run(): Promise<void> {
     await gitExecution(['switch', '-c', prBranch, `origin/${inputs.branch}`])
     core.endGroup()
 
+    let hasError = false
+
     // Cherry pick
     core.startGroup('Cherry picking')
     const result = await gitExecution(['cherry-pick', '-x', `${githubSha}`])
     if (result.exitCode !== 0 && !result.stderr.includes(CHERRYPICK_EMPTY)) {
-      throw new Error(`Unexpected error: ${result.stderr}`)
+      hasError = true
+      // throw new Error(`Unexpected error: ${result.stderr}`)
+      await gitExecution(['add', '.'])
+      await gitExecution(['commit', '-m', `cherry-pick(${githubSha.slice(0, 7)}) conflict should be resovled`])
     }
     core.endGroup()
 
@@ -90,7 +95,7 @@ export async function run(): Promise<void> {
 
     // Create pull request
     core.startGroup('Opening pull request')
-    await createPullRequest(inputs, prBranch)
+    await createPullRequest(inputs, prBranch, { draft: !hasError })
     core.endGroup()
   } catch (error) {
     core.setFailed(error.message)

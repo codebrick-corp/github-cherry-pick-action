@@ -17,7 +17,8 @@ export interface Inputs {
 
 export async function createPullRequest(
   inputs: Inputs,
-  prBranch: string
+  prBranch: string,
+  opts?: { draft: boolean }
 ): Promise<void> {
   const octokit = github.getOctokit(inputs.token)
   if (process.env.GITHUB_REPOSITORY !== undefined) {
@@ -41,7 +42,8 @@ export async function createPullRequest(
       head: prBranch,
       base: inputs.branch,
       title,
-      body
+      body,
+      draft: !!opts?.draft
     })
 
     // Apply labels
