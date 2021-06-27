@@ -18,7 +18,7 @@ export interface Inputs {
 export async function createPullRequest(
   inputs: Inputs,
   prBranch: string,
-  opts?: { draft: boolean }
+  opts?: {draft: boolean}
 ): Promise<void> {
   const octokit = github.getOctokit(inputs.token)
   if (process.env.GITHUB_REPOSITORY !== undefined) {

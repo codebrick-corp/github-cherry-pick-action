@@ -40,7 +40,7 @@ exports.createPullRequest = void 0;
 const github = __importStar(__webpack_require__(5438));
 const core = __importStar(__webpack_require__(2186));
 const ERROR_PR_REVIEW_FROM_AUTHOR = 'Review cannot be requested from pull request author';
-function createPullRequest(inputs, prBranch) {
+function createPullRequest(inputs, prBranch, opts) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const octokit = github.getOctokit(inputs.token);
@@ -61,7 +61,8 @@ function createPullRequest(inputs, prBranch) {
                 head: prBranch,
                 base: inputs.branch,
                 title,
-                body
+                body,
+                draft: !!(opts === null || opts === void 0 ? void 0 : opts.draft)
             });
             // Apply labels
             if (inputs.labels.length > 0) {
@@ -224,13 +225,17 @@ function run() {
             core.endGroup();
             // Create branch new branch
             core.startGroup(`Create new branch from ${inputs.branch}`);
-            yield gitExecution(['checkout', '-b', prBranch, `origin/${inputs.branch}`]);
+            yield gitExecution(['switch', '-c', prBranch, `origin/${inputs.branch}`]);
             core.endGroup();
+            let hasError = false;
             // Cherry pick
             core.startGroup('Cherry picking');
             const result = yield gitExecution(['cherry-pick', '-x', `${githubSha}`]);
             if (result.exitCode !== 0 && !result.stderr.includes(CHERRYPICK_EMPTY)) {
-                throw new Error(`Unexpected error: ${result.stderr}`);
+                hasError = true;
+                // throw new Error(`Unexpected error: ${result.stderr}`)
+                yield gitExecution(['add', '.']);
+                yield gitExecution(['commit', '-m', `cherry-pick(${githubSha.slice(0, 7)}) conflict should be resovled`]);
             }
             core.endGroup();
             // Push new branch
@@ -239,7 +244,7 @@ function run() {
             core.endGroup();
             // Create pull request
             core.startGroup('Opening pull request');
-            yield github_helper_1.createPullRequest(inputs, prBranch);
+            yield github_helper_1.createPullRequest(inputs, prBranch, { draft: !hasError });
             core.endGroup();
         }
         catch (error) {

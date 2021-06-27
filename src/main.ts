@@ -84,7 +84,11 @@ export async function run(): Promise<void> {
       hasError = true
       // throw new Error(`Unexpected error: ${result.stderr}`)
       await gitExecution(['add', '.'])
-      await gitExecution(['commit', '-m', `cherry-pick(${githubSha.slice(0, 7)}) conflict should be resovled`])
+      await gitExecution([
+        'commit',
+        '-m',
+        `cherry-pick(${githubSha.slice(0, 7)}) conflict should be resovled`
+      ])
     }
     core.endGroup()
 
@@ -95,7 +99,7 @@ export async function run(): Promise<void> {
 
     // Create pull request
     core.startGroup('Opening pull request')
-    await createPullRequest(inputs, prBranch, { draft: !hasError })
+    await createPullRequest(inputs, prBranch, {draft: !hasError})
     core.endGroup()
   } catch (error) {
     core.setFailed(error.message)
